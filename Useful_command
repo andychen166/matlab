@@ -1,0 +1,1 @@
+addpath(genpath('abosouletpath'))%add all the directory and sub-directory as searching path
