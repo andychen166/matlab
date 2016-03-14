@@ -103,7 +103,7 @@ xlabel_name = 'sampling time series (5:00 am -- 20:55 pm)';
 flag = 1;
 for i = 1:col_len_drive
     if(flag == 1)%to mark the unit of different graphs;
-        ylabel_name = 'second'
+        ylabel_name = 'minutes'
     elseif(flag == 2)
         ylabel_name = 'percent'
     else
