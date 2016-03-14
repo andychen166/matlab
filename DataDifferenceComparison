@@ -1,0 +1,239 @@
+clear;
+clc;
+%path of file to be imported;
+TracHov_path = 'TracHOV.xlsx';
+DriveNetHov_path = 'DriveNetHOV.xlsx';
+ 
+%columns to be imported;
+col_time = 'A2:A193';
+ 
+col_TTS = 'B2:B193';
+col_Avg_Speed = 'C2:C193';
+col_Min_Speed = 'D2:D193';
+col_Max_Speed = 'E2:E193';
+col_Cong_45 = 'F2:F193';
+col_Speed_85 = 'J2:J193';
+col_Speed_50 = 'Q2:Q193';
+col_Speed_15 = 'X2:X193';
+plot_title_array = {'HovAverageTravelTime','HovCongest45','HovAverageSpeed', 'HovMinimumSpeed',  'HovMaximumSpeed', 'HovSpeed85Percent','HovSpeed50Percent','HovSpeed15Percent'};
+statistic_title_array = plot_title_array;
+ 
+%import time series for trac and driveNet
+ 
+Trac_Hov_time_series = xlsread(TracHov_path,1,'A2:A193');
+time_len = length(Trac_Hov_time_series)
+ 
+Trac_Hov_time_series_string = datestr(Trac_Hov_time_series,'HH:MM')
+Trac_Hov_time_label = {}
+for i = 1:time_len
+    temp = {char(Trac_Hov_time_series_string(i,:))}
+    Trac_Hov_time_label = [Trac_Hov_time_label;temp];
+end
+ 
+ 
+DriveNet_Hov_time_series = xlsread(DriveNetHov_path,1,'A2:A193');
+time_len = length(DriveNet_Hov_time_series)
+ 
+DriveNet_Hov_time_series_string = datestr(DriveNet_Hov_time_series,'HH:MM')
+DriveNet_Hov_time_label = {}
+for i = 1:time_len
+    temp = {char(DriveNet_Hov_time_series_string(i,:))}
+    DriveNet_Hov_time_label = [DriveNet_Hov_time_label;temp];
+end
+ 
+ 
+ 
+%import Trac data;
+TracHov_TTS = xlsread(TracHov_path,1, col_TTS);
+ 
+TracHov_Avg_Speed = xlsread(TracHov_path,1, col_Avg_Speed);
+ 
+TracHov_Min_Speed = xlsread(TracHov_path,1, col_Min_Speed);
+TracHov_Max_Speed = xlsread(TracHov_path,1, col_Max_Speed);
+TracHov_Cong_45 = xlsread(TracHov_path,1, col_Cong_45);
+TracHov_Speed_85 = xlsread(TracHov_path,1, col_Speed_85);
+TracHov_Speed_50 = xlsread(TracHov_path,1, col_Speed_50);
+TracHov_Speed_15 = xlsread(TracHov_path,1, col_Speed_15);
+%combine all the data into one array
+TracHov_TTS = TracHov_TTS(:);
+TracHov_Avg_Speed = TracHov_Avg_Speed(:);
+TracHov_Min_Speed = TracHov_Min_Speed(:);
+TracHov_Max_Speed = TracHov_Max_Speed(:);
+TracHov_Cong_45 = TracHov_Cong_45(:);
+TracHov_Speed_85 = TracHov_Speed_85(:);
+TracHov_Speed_50 = TracHov_Speed_50(:);
+TracHov_Speed_15 = TracHov_Speed_15(:);
+TracHov_data = [TracHov_TTS, TracHov_Cong_45,TracHov_Avg_Speed,TracHov_Min_Speed, TracHov_Max_Speed,TracHov_Speed_85,TracHov_Speed_50,TracHov_Speed_15];
+ 
+ 
+%import driveNet data;
+DriveNetHov_TTS = xlsread(DriveNetHov_path,1, col_TTS);
+DriveNetHov_Avg_Speed = xlsread(DriveNetHov_path,1, col_Avg_Speed);
+DriveNetHov_Min_Speed = xlsread(DriveNetHov_path,1, col_Min_Speed);
+DriveNetHov_Max_Speed = xlsread(DriveNetHov_path,1, col_Max_Speed);
+DriveNetHov_Cong_45 = xlsread(DriveNetHov_path,1, col_Cong_45);
+DriveNetHov_Speed_85 = xlsread(DriveNetHov_path,1, col_Speed_85);
+DriveNetHov_Speed_50 = xlsread(DriveNetHov_path,1, col_Speed_50);
+DriveNetHov_Speed_15 = xlsread(DriveNetHov_path,1, col_Speed_15);
+%combine all the data into one array
+DriveNetHov_TTS = DriveNetHov_TTS(:);
+DriveNetHov_Avg_Speed = DriveNetHov_Avg_Speed(:);
+DriveNetHov_Min_Speed = DriveNetHov_Min_Speed(:);
+DriveNetHov_Max_Speed = DriveNetHov_Max_Speed(:);
+DriveNetHov_Cong_45 = DriveNetHov_Cong_45(:);
+DriveNetHov_Speed_85 = DriveNetHov_Speed_85(:);
+DriveNetHov_Speed_50 = DriveNetHov_Speed_50(:);
+DriveNetHov_Speed_15 = DriveNetHov_Speed_15(:);
+DriveNetHov_data = [DriveNetHov_TTS,DriveNetHov_Cong_45,DriveNetHov_Avg_Speed,DriveNetHov_Min_Speed, DriveNetHov_Max_Speed, DriveNetHov_Speed_85,DriveNetHov_Speed_50,DriveNetHov_Speed_15];
+ 
+ 
+ 
+ 
+%to draw the difference;
+col_len_drive = size(DriveNetHov_data,2);
+col_len_trac = size(TracHov_data,2);
+if(col_len_drive ~= col_len_trac)
+    disp('drive length is different from trac');
+    error('length unequal error');
+end
+legend_name ={'DriveNet', 'Trac'};
+xlabel_name = 'sampling time series (5:00 am -- 20:55 pm)';
+ 
+% %---------------------------------------------------------------
+flag = 1;
+for i = 1:col_len_drive
+    if(flag == 1)%to mark the unit of different graphs;
+        ylabel_name = 'second'
+    elseif(flag == 2)
+        ylabel_name = 'percent'
+    else
+        ylabel_name = 'mile/h'
+    end
+    cla reset
+    len = length(DriveNetHov_data(:,1));
+    len = 1:len
+    drive_temp = DriveNetHov_data(:,i);
+    
+    trac_temp = TracHov_data(:,i)
+    
+    %set ylael limitations
+    y_min = min(min(drive_temp),min(trac_temp))
+    y_max = max(max(drive_temp),max(trac_temp))
+    y_min = y_min - 1;
+    y_max = y_max +1;
+    %plot graph
+    p =  plot(len,drive_temp,'--go',len,trac_temp,'-.r*')
+    
+    
+    time_label = Trac_Hov_time_label;
+    % time_label = [{'05:00'},{'05:00'},{'05:00'},{'05:00'},{'20:55'}]
+    % plot(1:192,2:193)
+    % set(gca,'xtick', 1:10)
+    n_xtick = get(gca, 'xtick');
+    len_init_xtick = length(n_xtick);
+    len_total_xlabel = length(time_label);
+    % xtick_label = time_label(len_init_xtick-2) ;
+%     sub_len = len_total_xlabel  - 2;
+%     step = (sub_len -1)/ (len_init_xtick - 2 - 1 );
+    sub_len = len_total_xlabel  - 2;
+step = (sub_len -1)/ (len_init_xtick  -1 - 1);
+    
+    time_series_index = 1:step:(sub_len );
+    time_series_index = round(time_series_index);
+    len_time_series = length(time_series_index);
+    short_time_label = [];
+    for k = 1:len_time_series
+        temp = time_label(time_series_index(k));
+        short_time_label = [short_time_label,temp]
+        
+    end
+    
+%     short_time_label = [short_time_label,{' '}];
+    short_time_label = [short_time_label,time_label(len_total_xlabel)];
+    
+    % xlim([0,193])
+    new_label = short_time_label;
+    set(gca,'xticklabel',new_label);
+    
+    
+    
+    ylim([y_min,y_max])
+    plot_name = ['Compare',plot_title_array{i},'.pdf'];
+    title_name = ['compare', plot_title_array{i}]
+    title(title_name)%title
+    legend_drive = ['DriveNet']
+    legend_trac = ['Trac'];
+    legend('location','best',legend_drive,legend_trac);%legend to find itself best place;
+    xlabel({'sampling time series','(5:00 am -- 20:55 pm)'});
+    ylabel(ylabel_name);
+    print(plot_name,'-dpdf');%save plot to pdf file;
+    
+    flag = flag + 1;
+    
+end
+% %---------------------------------------------------------------------------------
+%statistical analysis
+%another one is to calculate the variace , std and mean value of the
+%series;
+ 
+flag_cell = 0;
+for i = 1:col_len_drive
+    TracHov_mean_name = ['TracHov',statistic_title_array{i},'mean'];
+    TracHov_std_name = ['TracHov',statistic_title_array{i},'std'];
+    TracHov_var_name = ['TracHov',statistic_title_array{i},'var'];
+    
+    TracHov_mean = {mean(TracHov_data(:,i))};
+    TracHov_std = {std(TracHov_data(:,i))};
+    TracHov_var = {var(TracHov_data(:,i))};
+    
+    TracHov_mean_cell = [TracHov_mean_name,TracHov_mean];
+    TracHov_std_cell = [TracHov_std_name,TracHov_std];
+    TracHov_var_cell = [TracHov_var_name,TracHov_var];
+    
+    
+    
+    DriveNetHov_mean_name = ['DriveNetHov',statistic_title_array{i},'mean'];
+    DriveNetHov_std_name = ['DriveNetHov',statistic_title_array{i},'std'];
+    DriveNetHov_var_name = ['DriveNetHov',statistic_title_array{i},'var'];
+    DriveNetHov_mean = {mean(DriveNetHov_data(:,i))};
+    
+    DriveNetHov_std = {std(DriveNetHov_data(:,i))};
+    DriveNetHov_var = {var(DriveNetHov_data(:,i))};
+    
+    
+    DriveNetHov_mean_cell = [DriveNetHov_mean_name,DriveNetHov_mean];
+    DriveNetHov_std_cell = [DriveNetHov_std_name,DriveNetHov_std];
+    DriveNetHov_var_cell = [DriveNetHov_var_name,DriveNetHov_var];
+    
+    Temp_TracDriveNetHov_mean_cell = [TracHov_mean_cell;DriveNetHov_mean_cell];%HOV needs to replace;
+    Temp_TracDriveNetHov_std_cell = [TracHov_std_cell;DriveNetHov_std_cell];
+    Temp_TracDriveNetHov_var_cell = [TracHov_var_cell;DriveNetHov_var_cell];
+    if(flag_cell == 0)
+        TracDriveNetHov_compare = [Temp_TracDriveNetHov_mean_cell;Temp_TracDriveNetHov_std_cell;Temp_TracDriveNetHov_var_cell];%HOV needs to replace;
+        
+    else
+        TracDriveNetHov_compare = [TracDriveNetHov_compare;Temp_TracDriveNetHov_mean_cell;Temp_TracDriveNetHov_std_cell;Temp_TracDriveNetHov_var_cell];
+        
+    end
+    flag_cell = 1;
+    
+    %     TracHov_cell = [TracHov_mean_cell;TracHov_std_cell;TracHov_var_cell];
+    %     DriveNetHov_cell = [DriveNetHov_mean_cell;DriveNetHov_std_cell;DriveNetHov_var_cell];
+    
+    
+    
+    
+end
+% xlswrite('HovStatistical.xlsx',DriveNetHov_cell,'DriveNetHov_statistics')
+% xlswrite('HovStatistical.xlsx',TracHov_cell,'TracHov_statistics')
+ 
+xlswrite('HovStatistics.xlsx', TracDriveNetHov_compare,'ststistical_compare')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
