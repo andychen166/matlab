@@ -1,0 +1,15 @@
+load elevation;
+clear ;
+clc;
+load residual;
+y = residual';
+len = 4800;
+Y = fft(y,len);
+
+
+Pyy = Y.*conj(Y);%engergy calculation;
+f = 1/len*(0:(len/2 - 1));%frequency;
+plot(f,Pyy(1:len/2))
+title('Power spectral density')
+xlabel('Frequency (Hz)')
+ylabel('energy')
