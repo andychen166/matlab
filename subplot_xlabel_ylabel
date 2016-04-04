@@ -1,0 +1,32 @@
+for ii=1:9
+   subplot(3,3,ii)
+   plot(randn(1,60),'-k')
+   xlabel('X Axis')
+   ylabel('Y Axis')
+   xlim([1,60])
+end
+c=get(gcf,'children'); %get the axes
+%Find the axis labels (since all are the same)
+xlab= get(get(c(1),'xlabel'),'string');
+ylab= get(get(c(1),'ylabel'),'string');
+pos=ones(length(c),4);
+for i=1:length(c)
+     pos(i,:)=get(c(i),'position');
+     set(get(c(i),'xlabel'),'string','')
+     set(get(c(i),'ylabel'),'string','')
+end
+
+
+
+
+
+for ii=1:length(c)
+    %Add X 
+    if pos(ii,2)==min(pos(:,2));
+        set(get(c(ii),'xlabel'),'string',xlab)
+    end
+    %Add Y
+    if pos(ii,1)==min(pos(:,1));
+        set(get(c(ii),'ylabel'),'string',ylab)
+    end
+end
